@@ -1,5 +1,4 @@
 import React from "react";
-import LinearProgress from "@material-ui/core/LinearProgress";
 import Grid from "@material-ui/core/Grid";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
@@ -109,11 +108,10 @@ class App extends React.Component {
 
   render() {
     const { posts, index, loading } = this.state;
-    if (posts.length === 0) return <LinearProgress />;
     const currentPost = posts[index % PAGE_SIZE];
 
     return (
-      <>
+      <MuiThemeProvider theme={theme}>
         <AppBar onSubmit={this.onSearch} />
         <Grid
           style={{ height: "100vh" }}
@@ -131,15 +129,9 @@ class App extends React.Component {
             />
           )}
         </Grid>
-      </>
+      </MuiThemeProvider>
     );
   }
 }
 
-const AppWithTheme = () => (
-  <MuiThemeProvider theme={theme}>
-    <App />
-  </MuiThemeProvider>
-);
-
-export default AppWithTheme;
+export default App;
