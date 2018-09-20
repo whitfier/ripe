@@ -12,7 +12,7 @@ import Markdown from "react-markdown";
 const Post = props => {
   return (
     <Badge badgeContent={`#${props.index + 1}`} color="primary">
-      <Card style={{ maxWidth: 800, maxHeight: 800, overflow: "scroll" }}>
+      <Card style={{ maxWidth: 800, maxHeight: 800, overflow: "auto" }}>
         {!!props.data.preview && (
           <CardMedia
             image={props.data.preview.images[0].source.url}
@@ -26,7 +26,7 @@ const Post = props => {
             }}
           />
         )}
-        <CardContent style={{ maxHeight: 400, overflow: "scroll" }}>
+        <CardContent style={{ maxHeight: 400, overflow: "auto" }}>
           <Typography gutterBottom variant="headline" component="h2">
             {props.data.title}
           </Typography>
