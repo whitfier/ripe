@@ -1,6 +1,7 @@
 import React from "react";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Grid from "@material-ui/core/Grid";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import Post from "./components/Post";
 import AppBar from "./components/AppBar";
 
@@ -12,7 +13,8 @@ class App extends React.Component {
     posts: [],
     before: null,
     after: null,
-    postIndex: 0
+    postIndex: 0,
+    loading: true
   };
 
   componentDidMount() {
@@ -26,7 +28,8 @@ class App extends React.Component {
 
   removeStickied = posts => posts.filter(post => !post.data.stickied);
 
-  fetchFirstPage = () =>
+  fetchFirstPage = () => {
+    this.setState({ loading: true });
     fetch(
       `https://www.reddit.com/r/${this.state.subreddit}.json?limit=${PAGE_SIZE}`
     )
@@ -36,12 +39,15 @@ class App extends React.Component {
           posts: this.removeStickied(data.data.children),
           before: data.data.before,
           after: data.data.after,
-          postIndex: 0
+          postIndex: 0,
+          loading: false
         })
       );
+  };
 
   fetchNextPage = () => {
     const { subreddit, after } = this.state;
+    this.setState({ loading: true });
     fetch(
       `https://www.reddit.com/r/${subreddit}.json?limit=${PAGE_SIZE}&count=${PAGE_SIZE}&after=${after}`
     )
@@ -51,7 +57,8 @@ class App extends React.Component {
           posts: this.removeStickied(data.data.children),
           before: data.data.before,
           after: data.data.after,
-          postIndex: 0
+          postIndex: 0,
+          loading: false
         })
       );
   };
@@ -59,6 +66,7 @@ class App extends React.Component {
   fetchPrevPage = () => {
     const { subreddit, before } = this.state;
     if (before === null) return;
+    this.setState({ loading: true });
     fetch(
       `https://www.reddit.com/r/${subreddit}.json?limit=${PAGE_SIZE}&count=${PAGE_SIZE}&before=${before}`
     )
@@ -68,13 +76,15 @@ class App extends React.Component {
           posts: this.removeStickied(data.data.children),
           before: data.data.before,
           after: data.data.after,
-          postIndex: PAGE_SIZE - 1
+          postIndex: PAGE_SIZE - 1,
+          loading: false
         })
       );
   };
 
   onKeyDown = event => {
-    const { posts, postIndex } = this.state;
+    const { posts, postIndex, loading } = this.state;
+    if (loading) return;
     if (event.key === "ArrowRight") {
       if (postIndex === posts.length - 1) this.fetchNextPage();
       else this.setState({ postIndex: postIndex + 1 });
@@ -88,7 +98,7 @@ class App extends React.Component {
     this.setState({ subreddit }, () => this.fetchFirstPage());
 
   render() {
-    const { posts, postIndex } = this.state;
+    const { posts, postIndex, loading } = this.state;
     if (posts.length === 0) return <LinearProgress />;
     const currentPost = posts[postIndex];
 
@@ -101,7 +111,11 @@ class App extends React.Component {
           justify="center"
           alignItems="center"
         >
-          <Post key={currentPost.data.id} data={currentPost.data} />
+          {loading ? (
+            <CircularProgress />
+          ) : (
+            <Post key={currentPost.data.id} data={currentPost.data} />
+          )}
         </Grid>
       </>
     );
