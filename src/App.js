@@ -1,26 +1,109 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import LinearProgress from "@material-ui/core/LinearProgress";
+import Grid from "@material-ui/core/Grid";
+import Post from "./components/Post";
+import AppBar from "./components/AppBar";
 
-class App extends Component {
+const PAGE_SIZE = 50;
+
+class App extends React.Component {
+  state = {
+    subreddit: "all",
+    posts: [],
+    before: null,
+    after: null,
+    postIndex: 0
+  };
+
+  componentDidMount() {
+    document.addEventListener("keydown", this.onKeyDown, false);
+    this.fetchFirstPage();
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.onKeyDown, false);
+  }
+
+  removeStickied = posts => posts.filter(post => !post.data.stickied);
+
+  fetchFirstPage = () =>
+    fetch(
+      `https://www.reddit.com/r/${this.state.subreddit}.json?limit=${PAGE_SIZE}`
+    )
+      .then(response => response.json())
+      .then(data =>
+        this.setState({
+          posts: this.removeStickied(data.data.children),
+          before: data.data.before,
+          after: data.data.after,
+          postIndex: 0
+        })
+      );
+
+  fetchNextPage = () => {
+    const { subreddit, after } = this.state;
+    fetch(
+      `https://www.reddit.com/r/${subreddit}.json?limit=${PAGE_SIZE}&count=${PAGE_SIZE}&after=${after}`
+    )
+      .then(response => response.json())
+      .then(data =>
+        this.setState({
+          posts: this.removeStickied(data.data.children),
+          before: data.data.before,
+          after: data.data.after,
+          postIndex: 0
+        })
+      );
+  };
+
+  fetchPrevPage = () => {
+    const { subreddit, before } = this.state;
+    if (before === null) return;
+    fetch(
+      `https://www.reddit.com/r/${subreddit}.json?limit=${PAGE_SIZE}&count=${PAGE_SIZE}&before=${before}`
+    )
+      .then(response => response.json())
+      .then(data =>
+        this.setState({
+          posts: this.removeStickied(data.data.children),
+          before: data.data.before,
+          after: data.data.after,
+          postIndex: PAGE_SIZE - 1
+        })
+      );
+  };
+
+  onKeyDown = event => {
+    const { posts, postIndex } = this.state;
+    if (event.key === "ArrowRight") {
+      if (postIndex === posts.length - 1) this.fetchNextPage();
+      else this.setState({ postIndex: postIndex + 1 });
+    } else if (event.key === "ArrowLeft") {
+      if (postIndex === 0) this.fetchPrevPage();
+      else this.setState({ postIndex: postIndex - 1 });
+    }
+  };
+
+  onSearch = subreddit =>
+    this.setState({ subreddit }, () => this.fetchFirstPage());
+
   render() {
+    const { posts, postIndex } = this.state;
+    if (posts.length === 0) return <LinearProgress />;
+    const currentPost = posts[postIndex];
+
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+      <>
+        <AppBar onSubmit={this.onSearch} />
+        <Grid
+          style={{ height: "100vh" }}
+          container
+          justify="center"
+          alignItems="center"
+        >
+          <Post key={currentPost.data.id} data={currentPost.data} />
+        </Grid>
+      </>
     );
   }
 }
