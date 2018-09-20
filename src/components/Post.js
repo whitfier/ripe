@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
@@ -8,26 +7,23 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { CardMedia } from "@material-ui/core";
 
-const styles = {
-  card: {
-    maxWidth: 500
-  },
-  media: {
-    height: 300
-  }
-};
-
-function MediaCard(props) {
-  const { classes } = props;
+const Post = props => {
   return (
-    <Card className={classes.card}>
+    <Card style={{ maxWidth: 800 }}>
       {!!props.data.preview && (
         <CardMedia
-          className={classes.media}
           image={props.data.preview.images[0].source.url}
+          style={{
+            width:
+              (props.data.preview.images[0].source.width * 400) /
+              props.data.preview.images[0].source.height,
+            height: 400,
+            marginLeft: "auto",
+            marginRight: "auto"
+          }}
         />
       )}
-      <CardContent>
+      <CardContent style={{ maxHeight: 400, overflow: "scroll" }}>
         <Typography gutterBottom variant="headline" component="h2">
           {props.data.title}
         </Typography>
@@ -35,16 +31,22 @@ function MediaCard(props) {
       </CardContent>
       <CardActions>
         <Button size="small" color="primary" href={props.data.url}>
-          View Original
+          Source
+        </Button>
+        <Button
+          size="small"
+          color="primary"
+          href={`https://www.reddit.com${props.data.permalink}`}
+        >
+          Comments
         </Button>
       </CardActions>
     </Card>
   );
-}
+};
 
-MediaCard.propTypes = {
-  classes: PropTypes.object.isRequired,
+Post.propTypes = {
   data: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(MediaCard);
+export default Post;
