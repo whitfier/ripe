@@ -7,11 +7,12 @@ import Badge from "@material-ui/core/Badge";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { CardMedia } from "@material-ui/core";
+import Markdown from "react-markdown";
 
 const Post = props => {
   return (
     <Badge badgeContent={`#${props.index + 1}`} color="primary">
-      <Card style={{ maxWidth: 800 }}>
+      <Card style={{ maxWidth: 800, maxHeight: 800, overflow: "scroll" }}>
         {!!props.data.preview && (
           <CardMedia
             image={props.data.preview.images[0].source.url}
@@ -29,7 +30,10 @@ const Post = props => {
           <Typography gutterBottom variant="headline" component="h2">
             {props.data.title}
           </Typography>
-          <Typography component="p">{props.data.selftext}</Typography>
+          <Typography component="p">
+            {" "}
+            <Markdown source={props.data.selftext} />
+          </Typography>
         </CardContent>
         <CardActions>
           <Button size="small" color="primary" href={props.data.url}>
