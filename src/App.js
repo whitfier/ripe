@@ -27,7 +27,7 @@ class App extends React.Component {
 
   componentDidMount() {
     document.addEventListener("keydown", this.onKeyDown, false);
-    this.fetchFirstPage();
+    this.fetchPage(null, null);
   }
 
   componentWillUnmount() {
@@ -36,46 +36,11 @@ class App extends React.Component {
 
   removeStickied = posts => posts.filter(post => !post.data.stickied);
 
-  fetchFirstPage = () => {
+  fetchPage = (before, after) => {
+    const { subreddit } = this.state;
     this.setState({ loading: true });
     fetch(
-      `https://www.reddit.com/r/${this.state.subreddit}.json?limit=${PAGE_SIZE}`
-    )
-      .then(response => response.json())
-      .then(data =>
-        this.setState({
-          posts: this.removeStickied(data.data.children),
-          before: data.data.before,
-          after: data.data.after,
-          index: 0,
-          loading: false
-        })
-      );
-  };
-
-  fetchNextPage = () => {
-    const { subreddit, after } = this.state;
-    this.setState({ loading: true });
-    fetch(
-      `https://www.reddit.com/r/${subreddit}.json?limit=${PAGE_SIZE}&count=${PAGE_SIZE}&after=${after}`
-    )
-      .then(response => response.json())
-      .then(data =>
-        this.setState({
-          posts: this.removeStickied(data.data.children),
-          before: data.data.before,
-          after: data.data.after,
-          loading: false
-        })
-      );
-  };
-
-  fetchPrevPage = () => {
-    const { subreddit, before } = this.state;
-    if (before === null) return;
-    this.setState({ loading: true });
-    fetch(
-      `https://www.reddit.com/r/${subreddit}.json?limit=${PAGE_SIZE}&count=${PAGE_SIZE}&before=${before}`
+      `https://www.reddit.com/r/${subreddit}.json?limit=${PAGE_SIZE}&count=${PAGE_SIZE}&before=${before}&after=${after}`
     )
       .then(response => response.json())
       .then(data =>
@@ -89,22 +54,22 @@ class App extends React.Component {
   };
 
   onKeyDown = event => {
-    const { posts, index, loading } = this.state;
+    const { posts, index, loading, before, after } = this.state;
 
     if (loading || (event.key === "ArrowLeft" && index === 0)) return;
 
     const relativeIndex = index % PAGE_SIZE;
     if (event.key === "ArrowRight") {
       this.setState({ index: index + 1 });
-      if (relativeIndex === posts.length - 1) this.fetchNextPage();
+      if (relativeIndex === posts.length - 1) this.fetchPage(null, after);
     } else if (event.key === "ArrowLeft") {
       this.setState({ index: index - 1 });
-      if (relativeIndex === 0) this.fetchPrevPage();
+      if (relativeIndex === 0) this.fetchPage(before, null);
     }
   };
 
   onSearch = subreddit =>
-    this.setState({ subreddit }, () => this.fetchFirstPage());
+    this.setState({ subreddit, index: 0 }, () => this.fetchPage(null, null));
 
   render() {
     const { posts, index, loading } = this.state;
