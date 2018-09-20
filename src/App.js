@@ -3,13 +3,18 @@ import LinearProgress from "@material-ui/core/LinearProgress";
 import Grid from "@material-ui/core/Grid";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
-import deepOrange from "@material-ui/core/colors/deepOrange";
 import Post from "./components/Post";
 import AppBar from "./components/AppBar";
 
 const PAGE_SIZE = 50;
 
-const theme = createMuiTheme({ palette: { primary: deepOrange } });
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: "#ff4500"
+    }
+  }
+});
 
 class App extends React.Component {
   state = {
