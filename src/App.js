@@ -22,7 +22,7 @@ class App extends React.Component {
     posts: [],
     before: null,
     after: null,
-    postIndex: 0,
+    index: 0,
     loading: true
   };
 
@@ -48,7 +48,7 @@ class App extends React.Component {
           posts: this.removeStickied(data.data.children),
           before: data.data.before,
           after: data.data.after,
-          postIndex: 0,
+          index: 0,
           loading: false
         })
       );
@@ -66,7 +66,6 @@ class App extends React.Component {
           posts: this.removeStickied(data.data.children),
           before: data.data.before,
           after: data.data.after,
-          postIndex: 0,
           loading: false
         })
       );
@@ -85,21 +84,23 @@ class App extends React.Component {
           posts: this.removeStickied(data.data.children),
           before: data.data.before,
           after: data.data.after,
-          postIndex: PAGE_SIZE - 1,
           loading: false
         })
       );
   };
 
   onKeyDown = event => {
-    const { posts, postIndex, loading } = this.state;
-    if (loading) return;
+    const { posts, index, loading } = this.state;
+
+    if (loading || (event.key === "ArrowLeft" && index === 0)) return;
+
+    const relativeIndex = index % PAGE_SIZE;
     if (event.key === "ArrowRight") {
-      if (postIndex === posts.length - 1) this.fetchNextPage();
-      else this.setState({ postIndex: postIndex + 1 });
+      this.setState({ index: index + 1 });
+      if (relativeIndex === posts.length - 1) this.fetchNextPage();
     } else if (event.key === "ArrowLeft") {
-      if (postIndex === 0) this.fetchPrevPage();
-      else this.setState({ postIndex: postIndex - 1 });
+      this.setState({ index: index - 1 });
+      if (relativeIndex === 0) this.fetchPrevPage();
     }
   };
 
@@ -107,9 +108,9 @@ class App extends React.Component {
     this.setState({ subreddit }, () => this.fetchFirstPage());
 
   render() {
-    const { posts, postIndex, loading } = this.state;
+    const { posts, index, loading } = this.state;
     if (posts.length === 0) return <LinearProgress />;
-    const currentPost = posts[postIndex];
+    const currentPost = posts[index % PAGE_SIZE];
 
     return (
       <>
@@ -123,7 +124,11 @@ class App extends React.Component {
           {loading ? (
             <CircularProgress />
           ) : (
-            <Post key={currentPost.data.id} data={currentPost.data} />
+            <Post
+              key={currentPost.data.id}
+              data={currentPost.data}
+              index={index}
+            />
           )}
         </Grid>
       </>
