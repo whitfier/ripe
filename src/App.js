@@ -2,8 +2,10 @@ import React from "react";
 import Grid from "@material-ui/core/Grid";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
-import Post from "./components/Post";
 import AppBar from "./components/AppBar";
+import VideoPost from "./components/VideoPost";
+import SelfPost from "./components/SelfPost";
+import LinkPost from "./components/LinkPost";
 
 const PAGE_SIZE = 50;
 
@@ -71,6 +73,43 @@ class App extends React.Component {
   onSearch = subreddit =>
     this.setState({ subreddit, index: 0 }, () => this.fetchPage(null, null));
 
+  renderPost = data => {
+    switch (data.post_hint) {
+      case "image":
+        return <LinkPost data={data} url={data.url} index={this.state.index} />;
+      case "hosted:video":
+        return (
+          <VideoPost
+            data={data}
+            url={data.media.reddit_video.scrubber_media_url}
+            index={this.state.index}
+          />
+        );
+      case "rich:video":
+        const url =
+          data.domain === "gfycat.com"
+            ? data.preview.reddit_video_preview.scrubber_media_url
+            : data.url;
+        return <VideoPost data={data} url={url} index={this.state.index} />;
+      case "link":
+        return data.preview.reddit_video_preview ? (
+          <VideoPost
+            data={data}
+            url={data.preview.reddit_video_preview.scrubber_media_url}
+            index={this.state.index}
+          />
+        ) : (
+          <LinkPost
+            data={data}
+            url={data.preview.images[0].source.url}
+            index={this.state.index}
+          />
+        );
+      default:
+        return <SelfPost data={data} index={this.state.index} />;
+    }
+  };
+
   render() {
     const { posts, index, loading } = this.state;
     const currentPost = posts[index % PAGE_SIZE];
@@ -84,15 +123,7 @@ class App extends React.Component {
           justify="center"
           alignItems="center"
         >
-          {loading ? (
-            <CircularProgress />
-          ) : (
-            <Post
-              key={currentPost.data.id}
-              data={currentPost.data}
-              index={index}
-            />
-          )}
+          {loading ? <CircularProgress /> : this.renderPost(currentPost.data)}
         </Grid>
       </MuiThemeProvider>
     );

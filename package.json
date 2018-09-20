@@ -9,6 +9,7 @@
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "react-markdown": "^3.6.0",
+    "react-player": "^1.6.6",
     "react-scripts": "2.0.1",
     "typeface-roboto": "^0.0.54"
   },
