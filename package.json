@@ -1,5 +1,6 @@
 {
   "name": "ripe",
+  "homepage": "https://whitryan.github.io/ripe",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -10,11 +11,16 @@
     "react-scripts": "2.0.1",
     "typeface-roboto": "^0.0.54"
   },
+  "devDependencies": {
+    "gh-pages": "^2.0.0"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "yarn build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": "react-app"
