@@ -15,7 +15,7 @@ importScripts("/ripe/workbox-v3.6.2/workbox-sw.js");
 workbox.setConfig({modulePathPrefix: "/ripe/workbox-v3.6.2"});
 
 importScripts(
-  "/ripe/precache-manifest.dd0c83f76decd1c0e6ea04b610ed316b.js"
+  "/ripe/precache-manifest.be716e56febc56353482d8bd453ef951.js"
 );
 
 workbox.clientsClaim();
